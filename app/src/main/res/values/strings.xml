@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">message_app_kotlin</string>
+    <string name="title_activity_bottom_nav">MainActivity</string>
+    <string name="title_messages">Messages</string>
+    <string name="title_friends">Friends</string>
+    <string name="username_chars">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_</string>
+    <string name="names_chars">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\'-</string>
+    <string name="sms_rates">You will receive a verification code. Standard text and carrier rates apply.</string>
+    <string name="email_verify_message">A verification email will be sent to this address. Please make sure to enter your email correctly.</string>
+    <string name="what_to_know_phone">What to know about signing up with a Phone Number?</string>
+    <string name="what_to_know_email">What to know about signing up with an Email Address?</string>
+    <string name="info_about_auth_phone">By signing up using a phone number, it can be less secure than using an
+email address. This is because it is possible to change your phone number. Please make sure to update your
+account before you change your phone number.</string>
+    <string name="resend_code_header">Resend Verification Code?</string>
+    <string name="info_about_auth_email">By signing up using an email, it is generally the more secure option as
+    you always keep your email address and it never gets passed to someone else unlike a phone number. Please make
+    sure to have a strong password on your email in order to make sure no one can reset any passwords.</string>
+    <string name="resend_code_detail">Would you like to send another verification code? Standard text and carrier rates apply.</string>
+</resources>

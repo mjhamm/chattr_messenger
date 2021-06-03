@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="end"
+    android:layout_gravity="end">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/windowBackground"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:menu="@menu/bottom_nav_menu" />
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/main_appBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@color/blue"
+            app:contentInsetStart="0dp"
+            android:elevation="4dp"
+            app:elevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white">
+
+                <SearchView
+                    android:id="@+id/main_searchBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    app:queryHint="Default Search Hint"
+                    android:layout_marginStart="16dp"
+                    android:queryBackground="@android:color/transparent"/>
+
+                <TextView
+                    android:id="@+id/appBar_title"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:text="Messages"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textColor"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/profileButton"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:backgroundTint="@color/darkGreen"
+                    app:cardCornerRadius="22dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="M"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:layout_gravity="center"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/nav_view"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/nav_view"
+            android:layout_margin="16dp"
+            app:backgroundTint="@color/blue"
+            app:tint="@color/white"
+            android:src="@drawable/new_message_48"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/drawer_nav"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        app:menu="@menu/drawer_menu"
+        app:itemTextAppearance="@style/Widget.Custom.NavigationView.Text"
+        app:headerLayout="@layout/drawer_header"
+        android:fitsSystemWindows="false"/>
+
+</androidx.drawerlayout.widget.DrawerLayout>

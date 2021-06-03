@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".bottomnav.ui.chat.Chat">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/main_appBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/blue"
+        app:contentInsetStart="0dp"
+        android:elevation="4dp"
+        app:elevation="4dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+
+            <ImageButton
+                android:id="@+id/chatBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="16dp"
+                android:background="@null"
+                android:tint="@color/black"
+                android:paddingVertical="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="0dp"
+                app:layout_constraintEnd_toStartOf="@id/profileButton"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:src="@drawable/ic_baseline_arrow_back_36"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/profileButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:backgroundTint="@color/darkGreen"
+                app:cardCornerRadius="22dp"
+                android:layout_marginStart="16dp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/chatBack"
+                android:layout_marginEnd="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="M"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center"/>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/appBarName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:layout_weight="1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/profileButton"
+                app:layout_constraintBottom_toTopOf="@id/appBarActive"
+                app:layout_constraintVertical_chainStyle="packed"
+                android:layout_marginStart="16dp"
+                android:text="Michael Hamm"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/textColor"/>
+
+            <TextView
+                android:id="@+id/appBarActive"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:layout_weight="1"
+                app:layout_constraintTop_toBottomOf="@id/appBarName"
+                app:layout_constraintStart_toEndOf="@id/profileButton"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="16dp"
+                android:text="Active 3 Hours Ago"
+                android:textSize="12sp"
+                android:textStyle="normal"
+                android:textColor="@color/darkGrey"/>
+
+            <ImageButton
+                android:id="@+id/infoButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:tint="@color/blue"
+                android:padding="8dp"
+                android:src="@drawable/ic_baseline_info_24"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="8dp"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatRV"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/main_appBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar"/>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minLines="1"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="16dp"
+                android:inputType="textCapSentences|textMultiLine"
+                android:layout_marginVertical="12dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="@drawable/rounded_edit_text_border"
+                android:layout_gravity="center_vertical"
+                android:textColorHint="@color/darkGrey"
+                android:textSize="14sp"
+                android:hint="Chat Message"/>
+
+            <ImageButton
+                android:id="@+id/sendButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:padding="8dp"
+                android:background="@android:color/transparent"
+                android:layout_gravity="bottom|end"
+                android:src="@drawable/ic_baseline_send_24"
+                android:tint="@color/blue"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

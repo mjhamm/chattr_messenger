@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item >
+        <shape android:shape="oval">
+            <solid android:color="@color/mainGreen"/>
+            <size android:height="6dp"
+                android:width="6dp"/>
+            <stroke android:width="2dp"
+                android:color="@color/white"
+                />
+        </shape>
+    </item>
+
+    <item android:drawable="@drawable/ic_baseline_email_24"
+        android:bottom="6dp"
+        android:top="6dp"
+            android:left="6dp"
+        android:right="6dp"
+        />
+
+</layer-list>

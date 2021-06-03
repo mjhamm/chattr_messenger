@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Profile">
+        <menu>
+            <item
+                android:id="@+id/active_status"
+                android:icon="@drawable/ic_baseline_block_24"
+                android:title="Active Status">
+            </item>
+            <item
+                android:id="@+id/profile_image"
+                android:icon="@drawable/ic_baseline_person_24"
+                android:title="Update Profile"
+                />
+        </menu>
+    </item>
+
+    <item android:title="Preferences">
+        <menu>
+            <item
+                android:id="@+id/nav_privacy"
+                android:icon="@drawable/ic_baseline_block_24"
+                android:title="Privacy"
+                />
+            <item
+                android:id="@+id/nav_notifications"
+                android:icon="@drawable/ic_notifications_black_24dp"
+                android:title="Notifications &amp; Sounds"
+                />
+        </menu>
+    </item>
+
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_problem"
+                android:icon="@drawable/ic_baseline_block_24"
+                android:title="Report Technical Problem"
+                />
+            <item
+                android:id="@+id/nav_help"
+                android:icon="@drawable/ic_baseline_block_24"
+                android:title="Help"
+                />
+            <item
+                android:id="@+id/nav_legal"
+                android:icon="@drawable/ic_baseline_block_24"
+                android:title="Legal &amp; Policies"
+                />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/signOut"
+        android:title="Sign Out"/>
+
+</menu>

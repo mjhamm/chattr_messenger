@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?android:attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7" />
+
+    <com.google.android.material.circularreveal.cardview.CircularRevealCardView
+        android:id="@+id/messages_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="16dp"
+        app:cardCornerRadius="25dp"
+        android:backgroundTint="@color/darkGreen">
+
+        <TextView
+            android:id="@+id/imageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="M"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+    </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
+
+    <TextView
+        android:id="@+id/messages_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/messages_image"
+        app:layout_constraintEnd_toStartOf="@id/guide1"
+        android:text="Michael Hamm"
+        android:gravity="bottom"
+        app:layout_constraintTop_toTopOf="@id/messages_image"
+        app:layout_constraintBottom_toTopOf="@id/message"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/messages_image"
+        android:text="This is a test message. This is a test message."
+        app:layout_constraintBottom_toBottomOf="@id/messages_image"
+        app:layout_constraintEnd_toStartOf="@id/guide1"
+        app:layout_constraintTop_toBottomOf="@id/messages_name"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="bottom"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textStyle="normal"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="yesterday"
+        android:maxLines="1"
+        android:textAllCaps="true"
+        app:layout_constraintTop_toTopOf="@id/messages_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guide1"
+        app:layout_constraintBottom_toTopOf="@id/notificationCard"
+        android:layout_marginEnd="16dp"
+        android:gravity="end|bottom"
+        android:textStyle="normal"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="12sp"/>
+
+    <com.google.android.material.circularreveal.cardview.CircularRevealCardView
+        android:id="@+id/notificationCard"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:backgroundTint="@color/blue"
+        app:cardCornerRadius="12dp"
+        android:visibility="visible"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="@id/time"
+        app:layout_constraintTop_toBottomOf="@id/time"
+        app:layout_constraintBottom_toBottomOf="@id/messages_image">
+
+        <TextView
+            android:id="@+id/numNotifications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="26"
+            android:layout_gravity="center"
+            android:textColor="@color/white"/>
+
+    </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
