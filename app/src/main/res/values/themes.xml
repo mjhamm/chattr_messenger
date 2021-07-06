@@ -19,7 +19,8 @@
 <!--        <item name="drawableNavigationItemBackground">@drawable/menu_background_color_state</item>-->
     </style>
 
-    <style name="Widget.Custom.NavigationView" parent="Widget.Design.NavigationView">
+    <style name="Widget.Custom.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="Widget.Custom.NavigationView.Text" parent="Base.TextAppearance.AppCompat">

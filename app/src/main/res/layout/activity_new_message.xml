@@ -43,7 +43,7 @@
         app:layout_constraintTop_toBottomOf="@id/newBack"
         app:layout_constraintEnd_toEndOf="parent"
         app:iconifiedByDefault="false"
-        app:queryBackground="@null"
+        app:queryBackground="@android:color/transparent"
         app:searchIcon="@null"
         app:queryHint="Type a name, username"/>
 

@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -18,12 +19,14 @@ import com.app.message_app_kotlin.bottomnav.ui.friends.AddFriend
 import com.app.message_app_kotlin.bottomnav.ui.friends.FriendsFragment
 import com.app.message_app_kotlin.bottomnav.ui.messages.MessageFragment
 import com.app.message_app_kotlin.bottomnav.ui.messages.NewMessage
+import com.app.message_app_kotlin.profile.UpdateProfile
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
 class BottomNav : AppCompatActivity() {
@@ -33,6 +36,11 @@ class BottomNav : AppCompatActivity() {
     private lateinit var friendsFragment: FriendsFragment
     private lateinit var active: Fragment
     private lateinit var mAuth: FirebaseAuth
+    private lateinit var nameTextView: TextView
+    private lateinit var usernameTextView: TextView
+    private lateinit var myUID: String
+    private var myName = ""
+    private var myUsername = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,18 +73,39 @@ class BottomNav : AppCompatActivity() {
         mAuth = Firebase.auth
         val fm = supportFragmentManager
 
+        if (mAuth.currentUser != null) {
+            myUID = mAuth.currentUser!!.uid
+        }
+
         drawer = findViewById(R.id.drawer)
         val addButton: FloatingActionButton = findViewById(R.id.addButton)
         val drawerNav: NavigationView = findViewById(R.id.drawer_nav)
         val profileButton: MaterialCardView = findViewById(R.id.profileButton)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
-        val searchBar: SearchView = findViewById(R.id.main_searchBar)
         val appBarTitle: TextView = findViewById(R.id.appBar_title)
+
+        val navHeader: View = drawerNav.getHeaderView(0)
+        nameTextView = navHeader.findViewById(R.id.textName)
+        usernameTextView = navHeader.findViewById(R.id.textUsername)
+
+        retrieveUserInfo(myUID)
+
+        FirebaseFirestore.getInstance().collection("users")
+            .document(myUID)
+            .addSnapshotListener { value, error ->
+                val firstName = value?.getString("firstName")
+                val lastName = value?.getString("lastName")
+                val username = value?.getString("username")
+
+                val name = "$firstName $lastName"
+
+                setHeader(name, username.toString())
+            }
 
         messageFragment = MessageFragment()
         friendsFragment = FriendsFragment()
         // setup the message fragment as the active fragment
-        active = messageFragment;
+        active = messageFragment
 
         // add each fragment to the activity
         // this will make showing and hiding inside of the fragment container easier when the user
@@ -85,7 +114,6 @@ class BottomNav : AppCompatActivity() {
         fm.beginTransaction().add(R.id.nav_host_fragment, friendsFragment, "contact").hide(friendsFragment).commit()//.hide(contactsFragment).commit()
 
         appBarTitle.text = getString(R.string.title_messages)
-        searchBar.queryHint = "Search Messages"
 
         var curDrawable = R.drawable.new_message_48
 
@@ -93,7 +121,6 @@ class BottomNav : AppCompatActivity() {
             when(it.itemId) {
                 R.id.navigation_messages -> {
                     fm.beginTransaction().hide(active).show(messageFragment).commit()
-                    searchBar.queryHint = "Search Messages"
                     appBarTitle.text = "Messages"
                     active = messageFragment
                     if (curDrawable != R.drawable.new_message_48) {
@@ -104,7 +131,6 @@ class BottomNav : AppCompatActivity() {
                 }
                 R.id.navigation_contacts -> {
                     fm.beginTransaction().hide(active).show(friendsFragment).commit()
-                    searchBar.queryHint = "Search Friends"
                     appBarTitle.text = "Friends"
                     active = friendsFragment
                     if (curDrawable != R.drawable.ic_baseline_person_add_alt_24) {
@@ -120,8 +146,6 @@ class BottomNav : AppCompatActivity() {
         }
 
         profileButton.setOnClickListener {
-            searchBar.setQuery("", false)
-            searchBar.isIconified = true
             if (drawer.isDrawerOpen(GravityCompat.END)) {
                 drawer.close()
             } else {
@@ -139,35 +163,21 @@ class BottomNav : AppCompatActivity() {
             }
         }
 
-        searchBar.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
-
-            override fun onQueryTextSubmit(p0: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(p0: String?): Boolean {
-                return true
-            }
-        })
-
-        searchBar.setOnSearchClickListener {
-            appBarTitle.visibility = View.GONE
-        }
-
-        searchBar.setOnCloseListener {
-            appBarTitle.visibility = View.VISIBLE
-            return@setOnCloseListener false
-        }
-
         drawerNav.setNavigationItemSelectedListener {
             when(it.itemId) {
                 R.id.nav_notifications -> {
-                    Log.d("TAG", "Notifications")
                     drawer.closeDrawer(GravityCompat.END)
+                    true
+                }
+                R.id.update_profile -> {
+                    val intent = Intent(this, UpdateProfile::class.java)
+                    drawer.closeDrawer(GravityCompat.END)
+                    startActivity(intent)
                     true
                 }
                 R.id.signOut -> {
                     mAuth.signOut()
+                    finish()
                     val intent = Intent(this, SignIn::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     drawer.closeDrawer(GravityCompat.END)
@@ -199,6 +209,29 @@ class BottomNav : AppCompatActivity() {
                         }
                     })
                     .start()
+    }
+
+    private fun retrieveUserInfo(uid: String) {
+
+        FirebaseFirestore.getInstance().collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { user ->
+                val firstName = user.getString("firstName")
+                val lastName = user.getString("lastName")
+                val username = user.getString("username") as String
+
+                myName = "$firstName $lastName"
+                myUsername = username
+
+                setHeader(myName, myUsername)
+            }
+
+    }
+
+    private fun setHeader(name: String, username: String) {
+        nameTextView.text = name
+        usernameTextView.text = username
     }
 
     override fun onBackPressed() {

@@ -24,7 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class NewMessage : AppCompatActivity(), FriendsAdapter.OnItemClickListener {
 
     private lateinit var mAuth: FirebaseAuth
-    private lateinit var uid: String
+    private lateinit var myUID: String
     private lateinit var list: MutableList<Friend>
     private lateinit var adapter: FriendsAdapter
     private lateinit var recyclerView: RecyclerView
@@ -61,17 +61,14 @@ class NewMessage : AppCompatActivity(), FriendsAdapter.OnItemClickListener {
             }
         }
         mAuth = FirebaseAuth.getInstance()
-//        if (mAuth.currentUser != null) {
-//            uid = mAuth.currentUser.uid
-//        }
 
         if (mAuth.currentUser != null) {
-            uid = mAuth.currentUser!!.uid
+            myUID = mAuth.currentUser!!.uid
         }
 
         list = mutableListOf()
         uidList = mutableListOf()
-        adapter = FriendsAdapter(list, this)
+        adapter = FriendsAdapter(list, this, myUID)
 
         contentLoading = findViewById(R.id.friendsLoading)
         recyclerView = findViewById(R.id.newMessageRV)
@@ -101,7 +98,7 @@ class NewMessage : AppCompatActivity(), FriendsAdapter.OnItemClickListener {
         // fetch friends from Firebase
         contentLoading.show()
         FirebaseFirestore.getInstance().collection("users")
-            .document(uid)
+            .document(myUID)
             .collection("friends")
             .get()
             .addOnSuccessListener { documents ->

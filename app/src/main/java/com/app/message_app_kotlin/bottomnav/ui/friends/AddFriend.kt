@@ -19,7 +19,10 @@ import androidx.core.widget.ContentLoadingProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.message_app_kotlin.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import java.util.*
 
 class AddFriend : AppCompatActivity(), AddFriendsAdapter.OnItemClickListener {
@@ -32,6 +35,8 @@ class AddFriend : AppCompatActivity(), AddFriendsAdapter.OnItemClickListener {
     private lateinit var contentLoading: ContentLoadingProgressBar
     private lateinit var adapter: AddFriendsAdapter
     private var isFriend = false
+    private lateinit var mAuth: FirebaseAuth
+    private lateinit var myUid: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,12 +70,18 @@ class AddFriend : AppCompatActivity(), AddFriendsAdapter.OnItemClickListener {
         adapter = AddFriendsAdapter(list, this)
         //fetchUsers()
 
+        mAuth = Firebase.auth
+
         val backButton: ImageButton = findViewById(R.id.addContactBack)
         contactSearch = findViewById(R.id.addContactSearch)
         contactRecyclerView = findViewById(R.id.addContactRV)
         findPeopletextHeader = findViewById(R.id.findPeopleHeader)
         findPeopleText = findViewById(R.id.findPeopleText)
         contentLoading = findViewById(R.id.loadingContacts)
+
+        if (mAuth.currentUser != null) {
+            myUid = mAuth.currentUser!!.uid
+        }
 
         contactRecyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -115,9 +126,9 @@ class AddFriend : AppCompatActivity(), AddFriendsAdapter.OnItemClickListener {
 
                     val contact = AddFriendObject(uid, image, firstName, lastName, username)
 
-                    if (firstName.equals(char, ignoreCase = true) || lastName.equals(char, ignoreCase = true) || username.toLowerCase(Locale.ROOT).startsWith(char.toString().toLowerCase(
+                    if (firstName.equals(char, ignoreCase = true) || lastName.equals(char, ignoreCase = true) || username.lowercase(Locale.ROOT).startsWith(char.toString().toLowerCase(
                             Locale.ROOT))) {
-                        if (!list.contains(contact)) {
+                        if (!list.contains(contact) && uid != myUid) {
                             list.add(contact)
                         }
                     }
@@ -164,7 +175,7 @@ class AddFriend : AppCompatActivity(), AddFriendsAdapter.OnItemClickListener {
         Log.d("FRIENDSFRAGMENT", uid)
         var isRequest = false
         FirebaseFirestore.getInstance().collection("users")
-            .document("rdrwKyPJLLALFJHKsokB")
+            .document(myUid)
             .collection("requests")
             .get()
             .addOnSuccessListener { requests ->
@@ -194,7 +205,7 @@ class AddFriend : AppCompatActivity(), AddFriendsAdapter.OnItemClickListener {
     private fun checkIfFriend(uid: String, position: Int) {
         var isFriend = false
         FirebaseFirestore.getInstance().collection("users")
-            .document("rdrwKyPJLLALFJHKsokB")
+            .document(myUid)
             .collection("friends")
             .get()
             .addOnSuccessListener { documents ->

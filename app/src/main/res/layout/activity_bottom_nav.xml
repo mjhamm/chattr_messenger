@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:fitsSystemWindows="true"
-    tools:openDrawer="end"
+    tools:openDrawer="start"
     android:layout_gravity="end">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,21 +43,22 @@
                 android:layout_height="match_parent"
                 android:background="@color/white">
 
-                <SearchView
+                <!--<SearchView
                     android:id="@+id/main_searchBar"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     app:queryHint="Default Search Hint"
                     android:layout_marginStart="16dp"
-                    android:queryBackground="@android:color/transparent"/>
+                    android:queryBackground="@android:color/transparent"/>-->
 
                 <TextView
                     android:id="@+id/appBar_title"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:gravity="center"
+                    android:gravity="start|center_vertical"
+                    android:paddingHorizontal="24dp"
                     android:layout_weight="1"
                     android:text="Messages"
                     android:textSize="20sp"

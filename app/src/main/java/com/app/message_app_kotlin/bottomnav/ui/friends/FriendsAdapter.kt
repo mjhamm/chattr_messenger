@@ -8,14 +8,24 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.message_app_kotlin.R
+import com.app.message_app_kotlin.bottomnav.ui.messages.Message
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import java.util.*
 
 class FriendsAdapter(
     private var friendsList: MutableList<Friend>,
-    private val listener: OnItemClickListener
+    private val listener: OnItemClickListener,
+    private val myUID: String
 
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var filterList: MutableList<Friend> = mutableListOf()
+
+    init {
+        filterList.addAll(friendsList)
+    }
 
     companion object {
         const val FRIEND_REQUEST_ITEM = 0
@@ -117,6 +127,56 @@ class FriendsAdapter(
 
     override fun getItemCount() = friendsList.size
 
+    fun sortAdapter(list: MutableList<Friend>) {
+        list.sortBy { it.firstName.lowercase(Locale.ROOT) }
+        list.sortByDescending { it.top }
+        list.sortBy { it.viewType }
+
+        // adds headers to top and friends
+        // TODO - Make this more efficient somehow (maybe function in adapter while sort happens?)
+        var count = 0
+        var friendsHeaderAdded = false
+        var topHeaderAdded = false
+
+        for (index in list.indices) {
+            if (list[count].viewType > 0) {
+                if (list[count].top) {
+                    if (!topHeaderAdded) {
+                        list.add(count, Friend(2, "", "", "Top Friends", "", ""))
+                        ++count
+                        topHeaderAdded = true
+                    }
+                } else {
+                    if (!friendsHeaderAdded) {
+                        list.add(count, Friend(2, "", "", "Friends", "", ""))
+                        friendsHeaderAdded = true
+                    }
+                }
+            }
+            ++count
+        }
+
+        notifyDataSetChanged()
+    }
+
+    fun filter(query: String) {
+        friendsList.clear()
+        if (query.isEmpty()) {
+            friendsList.addAll(filterList)
+        } else {
+            for (item in filterList) {
+                val fullName = "${item.firstName} ${item.lastName}"
+                if (item.firstName.contains(query, ignoreCase = true)
+                    or item.lastName.contains(query, ignoreCase = true)
+                    or fullName.contains(query, ignoreCase = true)
+                    and (item.viewType != 2)) {
+                    friendsList.add(item)
+                }
+            }
+        }
+        notifyDataSetChanged()
+    }
+
     inner class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
 
         init {
@@ -147,10 +207,22 @@ class FriendsAdapter(
                     val map = mapOf("uid" to uid, "request" to false, "top" to false)
                     // adds friend to firebase
                     FirebaseFirestore.getInstance().collection("users")
-                        .document("rdrwKyPJLLALFJHKsokB")
+                        .document(myUID)
                         .collection("friends")
                         .document(uid)
                         .set(map)
+
+                    val infoToFriend = mapOf(
+                        "uid" to myUID,
+                        "request" to false,
+                        "top" to false
+                    )
+
+                    FirebaseFirestore.getInstance().collection("users")
+                        .document(friendsList[position].uid)
+                        .collection("friends")
+                        .document(myUID)
+                        .set(infoToFriend)
 
                     FirebaseFirestore.getInstance().collection("users")
                         .document(uid)
@@ -170,6 +242,12 @@ class FriendsAdapter(
                             // notify the adapter that the item changed
                             notifyDataSetChanged()
                         }
+
+                    FirebaseFirestore.getInstance().collection("users")
+                        .document(friendsList[position].uid)
+                        .collection("requests")
+                        .document(myUID)
+                        .delete()
                 }
             }
 
@@ -180,7 +258,7 @@ class FriendsAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     // removes friend request from firebase
                     FirebaseFirestore.getInstance().collection("users")
-                        .document("rdrwKyPJLLALFJHKsokB")
+                        .document(myUID)
                         .collection("friends")
                         .document(uid)
                         .delete()
@@ -190,35 +268,6 @@ class FriendsAdapter(
                 }
             }
         }
-    }
-
-    private fun sortAdapter() {
-
-
-        
-//        var count = 0
-//        var friendsHeaderAdded = false
-//        var topHeaderAdded = false
-//
-//        for (index in friendsList.indices) {
-//            if (friendsList[count].viewType > 0) {
-//                if (friendsList[count].top) {
-//                    if (!topHeaderAdded) {
-//                        //friendsList.add(count, Friend(2, "", "", "Top Friends", ""))
-//                        ++count
-//                        topHeaderAdded = true
-//                    }
-//                } else {
-//                    if (!friendsHeaderAdded) {
-//                        //friendsList.add(count, Friend(2, "", "", "Friends", ""))
-//                        friendsHeaderAdded = true
-//                    }
-//                }
-//            }
-//            ++count
-//        }
-
-        notifyDataSetChanged()
     }
 
     interface OnItemClickListener {

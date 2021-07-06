@@ -6,20 +6,27 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.core.widget.ContentLoadingProgressBar
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.message_app_kotlin.R
+import com.app.message_app_kotlin.bottomnav.ui.viewmodels.FriendViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import java.util.*
 
 class FriendsFragment : Fragment(), FriendsAdapter.OnItemClickListener {
 
     private lateinit var recyclerView: RecyclerView
+    private lateinit var friendViewModel: FriendViewModel
     private lateinit var adapter: FriendsAdapter
     private lateinit var list: MutableList<Friend>
     private lateinit var mAuth: FirebaseAuth
@@ -28,16 +35,27 @@ class FriendsFragment : Fragment(), FriendsAdapter.OnItemClickListener {
     private lateinit var myUID: String
     private lateinit var friendsTextHeader: TextView
     private lateinit var friendsTextDetail: TextView
+    private var isFirstFetch = true
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        friendViewModel = activity?.run {
+            ViewModelProviders.of(this).get(FriendViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_friends, container, false)
 
-        mAuth = FirebaseAuth.getInstance()
+        mAuth = Firebase.auth
         recyclerView = root.findViewById(R.id.contact_recyclerview)
         friendsLoading = root.findViewById(R.id.friendsLoading)
         friendsTextHeader = root.findViewById(R.id.friends_text)
         friendsTextDetail = root.findViewById(R.id.friends_detail)
+
+        val friendsSearchView: SearchView = root.findViewById(R.id.friends_searchView)
 
         list = mutableListOf()
         friendsList = mutableListOf()
@@ -48,16 +66,73 @@ class FriendsFragment : Fragment(), FriendsAdapter.OnItemClickListener {
             myUID = currentUser.uid
         }
 
-        fetchFriends()
+        //fetchFriends()
+
+        adapter = FriendsAdapter(friendsList, this, myUID)
+
+        friendsSearchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                adapter.filter(p0.toString())
+                return true
+            }
+
+            override fun onQueryTextChange(p0: String?): Boolean {
+                adapter.filter(p0.toString())
+                return true
+            }
+        })
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                view?.clearFocus()
+            }
+        })
+
+        FirebaseFirestore.getInstance().collection("users")
+            .document(myUID)
+            .collection("friends")
+            .addSnapshotListener { value, error ->
+                for (dc in value!!.documentChanges) {
+                    when (dc.type) {
+                        DocumentChange.Type.ADDED -> {
+                            Log.d("TAG", "DOCUMENT ADDED: BEFORE FETCH")
+                            fetchFriends()
+                        }
+                        DocumentChange.Type.MODIFIED -> Log.d("TAG", "Modified friend: ${dc.document.data}")
+                        DocumentChange.Type.REMOVED -> {
+                            Log.d("TAG", "REMOVED")
+                            val docUID = dc.document.getString("uid")
+                            for (item in friendsList) {
+                                if (item.uid == docUID) {
+                                    friendsList.remove(item)
+                                    adapter.notifyDataSetChanged()
+                                }
+                            }
+                            Log.d("TAG", "Removed friend: ${dc.document.data}")
+                        }
+                    }
+                }
+            }
 
         return root
     }
 
     override fun onItemClick(position: Int) {
-        checkIfFriend(friendsList[position].uid, position)
+        Log.d("TAG", "friendslistsize = ${friendsList.size}")
+        Log.d("TAG", "position = $position")
+        checkIfRequest(friendsList[position].uid, position)
+
+        friendViewModel.data("TEST VIEW MODEL")
     }
 
     private fun fetchFriends() {
+
         friendsLoading.show()
 
         val requestUidList = mutableListOf<String>()
@@ -76,8 +151,8 @@ class FriendsFragment : Fragment(), FriendsAdapter.OnItemClickListener {
                         if (isRequest) {
                             // is friend request
                             requestUidList.add(uid)
-                        }
-                        else {
+                        } else {
+                            Log.d("TAG", "IS FRIEND")
                             // is friend
                             friendTempList.add(Pair(uid, isTop))
                         }
@@ -122,6 +197,14 @@ class FriendsFragment : Fragment(), FriendsAdapter.OnItemClickListener {
                     if (--remainingQueries == 0) {
                         if (friendTempList.isNotEmpty()) {
                             getFriendInfo(friendTempList)
+                        } else {
+                            hideNoFriendsText(true)
+                            //setAdapter(friendsList)
+                            adapter.sortAdapter(friendsList)
+                            friendsLoading.hide()
+                            adapter = FriendsAdapter(friendsList, this, myUID)
+                            recyclerView.layoutManager = LinearLayoutManager(parentFragment?.context)
+                            recyclerView.adapter = adapter
                         }
                     }
                 }
@@ -150,18 +233,25 @@ class FriendsFragment : Fragment(), FriendsAdapter.OnItemClickListener {
 
                     if (--remainingQueries == 0) {
                         if (friendsList.isEmpty()) {
-                            hideNoFriendsText(true)
-                        } else {
                             hideNoFriendsText(false)
-                            setAdapter(friendsList, fullName)
+                            adapter = FriendsAdapter(this.friendsList, this, myUID)
+                        } else {
+                            Log.d("FRIENDSLISTSIZE", "${friendsList.size}")
+                            hideNoFriendsText(true)
+                            //setAdapter(friendsList)
+                            adapter.sortAdapter(friendsList)
+                            friendsLoading.hide()
+                            adapter = FriendsAdapter(friendsList, this, myUID)
+                            recyclerView.layoutManager = LinearLayoutManager(parentFragment?.context)
+                            recyclerView.adapter = adapter
                         }
                     }
                 }
         }
     }
 
-    private fun setAdapter(list: MutableList<Friend>, fullName: String) {
-        list.sortBy { fullName.toLowerCase(Locale.ROOT) }
+    /*private fun setAdapter(list: MutableList<Friend>) {
+        list.sortBy { it.firstName.lowercase(Locale.ROOT) }
         list.sortByDescending { it.top }
         list.sortBy { it.viewType }
 
@@ -191,15 +281,47 @@ class FriendsFragment : Fragment(), FriendsAdapter.OnItemClickListener {
 
         friendsLoading.hide()
 
-        adapter = FriendsAdapter(list, this)
+        adapter = FriendsAdapter(list, this, myUID)
         recyclerView.layoutManager = LinearLayoutManager(parentFragment?.context)
         recyclerView.adapter = adapter
+    }*/
+
+    private fun checkIfRequest(uid: String, position: Int) {
+
+        Log.d("FRIENDSFRAGMENT", uid)
+        var isRequest = false
+        FirebaseFirestore.getInstance().collection("users")
+            .document(myUID)
+            .collection("requests")
+            .get()
+            .addOnSuccessListener { requests ->
+                for (request in requests) {
+                    Log.d("FRIENDSFRAGMENT", request.id)
+                    if (request.id == uid) {
+                        isRequest = true
+                        val intent = Intent(context, FriendPage::class.java)
+                        intent.putExtra("isFriend", 1)
+                        intent.putExtra("uid", friendsList[position].uid)
+                        intent.putExtra("image", friendsList[position].image)
+                        intent.putExtra("username", friendsList[position].username)
+                        intent.putExtra("firstName", friendsList[position].firstName)
+                        intent.putExtra("lastName", friendsList[position].lastName)
+                        startActivity(intent)
+                        return@addOnSuccessListener
+                    } else {
+                        isRequest = false
+                    }
+                }
+                if (!isRequest) {
+                    checkIfFriend(uid, position)
+                }
+            }
     }
 
     private fun checkIfFriend(uid: String, position: Int) {
         var isFriend = false
         FirebaseFirestore.getInstance().collection("users")
-            .document("rdrwKyPJLLALFJHKsokB")
+            .document(myUID)
             .collection("friends")
             .get()
             .addOnSuccessListener { documents ->

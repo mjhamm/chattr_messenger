@@ -7,20 +7,29 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.app.message_app_kotlin.EmailVerification
 import com.app.message_app_kotlin.PhoneVerification
 import com.app.message_app_kotlin.R
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class SignUpEmail : AppCompatActivity() {
 
     private lateinit var nextButton: MaterialButton
     private lateinit var emailEditText: EditText
+    private lateinit var firstName: String
+    private lateinit var lastName: String
+    private lateinit var mAuth: FirebaseAuth
+    private lateinit var tempPassword: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -38,12 +47,31 @@ class SignUpEmail : AppCompatActivity() {
         nextButton.isEnabled = false
         nextButton.isClickable = false
 
+        tempPassword = "98714FHUsudhfOWIUDb$09854FPHUHAUT"
+
+        mAuth = Firebase.auth
+
+        if (intent != null) {
+            firstName = intent.getStringExtra("firstName").toString()
+            lastName = intent.getStringExtra("lastName").toString()
+        }
+
         backButton.setOnClickListener {
             finish()
         }
 
+        mAuth.addAuthStateListener {
+            Log.d("TAG", "auth state changed")
+            mAuth.currentUser?.sendEmailVerification()
+        }
+
         nextButton.setOnClickListener {
-            showCodeDialog(emailEditText.text.toString())
+            showDialog(
+                false,
+                emailEditText.text.toString(),
+                "An email verification will be sent to the above email address. Is this email correct?",
+                "Yes",
+                "Edit Email")
         }
 
         emailEditText.addTextChangedListener(object: TextWatcher {
@@ -72,7 +100,48 @@ class SignUpEmail : AppCompatActivity() {
         }
     }
 
-    private fun showCodeDialog(emailAddress: String) {
+    private fun sendEmailVerification(email: String, password: String) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener {
+                when {
+                    it.isSuccessful -> {
+                        val user = mAuth.currentUser
+                        if (user != null) {
+                            Log.d("TAG", "user not null")
+                            //mAuth.currentUser?.sendEmailVerification()
+                            val intent = Intent(this, EmailVerification::class.java)
+                            intent.putExtra("firstName", firstName)
+                            intent.putExtra("lastName", lastName)
+                            intent.putExtra("email", email)
+                            startActivity(intent)
+                        }
+                    }
+                }
+
+//                if (it.isSuccessful) {
+//
+//                    }
+//                } else {
+//                    showDialog(
+//                        true,
+//                        emailEditText.text.toString(),
+//                        "This email address is already in use by another account. Please Sign In, or Sign Up with a different email address.",
+//                        "OK",
+//                        "Cancel")
+//                }
+            }
+            .addOnFailureListener {
+                showDialog(
+                    true,
+                    emailEditText.text.toString(),
+                    it.message.toString(),
+                    "OK",
+                    "Cancel"
+                )
+            }
+    }
+
+    private fun showDialog(isBasic: Boolean, emailAddress: String, detailText: String, confirmText: String, cancelText: String) {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
@@ -83,20 +152,17 @@ class SignUpEmail : AppCompatActivity() {
         val cancel = dialog.findViewById<MaterialButton>(R.id.cancel_button)
 
         titleView.text = emailAddress
-        detail.text = "An email verification will be sent to the above email address. Is this email correct?"
-        confirm.text = "Yes"
-        cancel.text = "Edit Email"
+        detail.text = detailText
+        confirm.text = confirmText
+        cancel.text = cancelText
 
         confirm.setOnClickListener {
             dialog.dismiss()
 
-            // check that email address isn't already in use
+            if (!isBasic) {
+                sendEmailVerification(emailEditText.text.toString(), tempPassword)
+            }
 
-            // if in use -- alert user
-            // check
-            // if not in use --
-            val intent = Intent(this, PhoneVerification::class.java)
-            startActivity(intent)
         }
         cancel.setOnClickListener {
             dialog.dismiss()

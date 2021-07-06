@@ -184,25 +184,35 @@ class SignIn : AppCompatActivity() {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                formatPhoneNumber(isEmail, phoneEditText)
+                if (!isEmail) {
+                    formatPhoneNumber(isEmail, phoneEditText)
+                }
             }
 
             override fun afterTextChanged(p0: Editable?) {
-                if (phoneEditText.text.length > 11 && !phoneEditText.text.contains("-")) {
-                    val formatted = phoneEditText.text.toString().substring(2, phoneEditText.text.length)
-                    Log.d("SIGNIN", formatted)
-                    phoneEditText.setText(StringBuilder(formatted).insert(3, "-").toString())
-                    phoneEditText.setText(StringBuilder(formatted).insert(7, "-").toString())
-                    phoneEditText.setText(formatted)
-                }
-                if (phoneEditText.text.length == 10) {
-                    if (!phoneEditText.text.contains("-")) {
-                        phoneEditText.setText(StringBuilder(phoneEditText.text).insert(3, "-").toString())
-                        phoneEditText.setText(StringBuilder(phoneEditText.text).insert(7, "-").toString())
+                if (!isEmail) {
+                    if (phoneEditText.text.length > 11 && !phoneEditText.text.contains("-")) {
+                        val formatted =
+                            phoneEditText.text.toString().substring(2, phoneEditText.text.length)
+                        Log.d("SIGNIN", formatted)
+                        phoneEditText.setText(StringBuilder(formatted).insert(3, "-").toString())
+                        phoneEditText.setText(StringBuilder(formatted).insert(7, "-").toString())
+                        phoneEditText.setText(formatted)
                     }
+                    if (phoneEditText.text.length == 10) {
+                        if (!phoneEditText.text.contains("-")) {
+                            phoneEditText.setText(
+                                StringBuilder(phoneEditText.text).insert(3, "-").toString()
+                            )
+                            phoneEditText.setText(
+                                StringBuilder(phoneEditText.text).insert(7, "-").toString()
+                            )
+                        }
+                    }
+
+                    formatPhoneNumber(isEmail, phoneEditText)
                 }
 
-                formatPhoneNumber(isEmail, phoneEditText)
                 disableButton(isEmail, phoneEditText.text.toString(), passwordEditText.text.toString(), signInButton)
             }
         })

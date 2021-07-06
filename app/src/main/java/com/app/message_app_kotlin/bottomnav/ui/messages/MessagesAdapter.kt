@@ -1,5 +1,6 @@
 package com.app.message_app_kotlin.bottomnav.ui.messages
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +17,13 @@ import kotlin.collections.ArrayList
 class MessagesAdapter (
     private var messagesList: MutableList<Message>,
     private val listener: OnItemClickListener
-) : RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>(), Filterable {
+) : RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
 
-    private lateinit var filterList: List<Message>
+    private var filterList: MutableList<Message> = mutableListOf()
+
+    init {
+        filterList.addAll(messagesList)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         return MessageViewHolder(
@@ -79,26 +84,22 @@ class MessagesAdapter (
         fun onItemClick(position: Int)
     }
 
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun publishResults(charSequence: CharSequence?, filterResults: FilterResults) {
-                filterList = filterResults.values as List<Message>
-                notifyDataSetChanged()
-            }
-
-            override fun performFiltering(charSequence: CharSequence?): FilterResults {
-                val queryString = charSequence?.toString()?.toLowerCase(Locale.ROOT)
-
-                val filterResults = FilterResults()
-                filterResults.values = if (queryString == null || queryString.isEmpty())
-                    messagesList
-                else
-                    messagesList.filter {
-                        it.firstName.toLowerCase(Locale.ROOT).contains(queryString) ||
-                                it.lastName.toLowerCase(Locale.ROOT).contains(queryString)
-                    }
-                return filterResults
+    fun filter(query: String) {
+        Log.d("MESSAGE LIST BEFORE", "${messagesList.size}")
+        Log.d("FILTER LIST BEFORE", "${filterList.size}")
+        messagesList.clear()
+        if (query.isEmpty()) {
+            messagesList.addAll(filterList)
+        } else {
+            for (item in filterList) {
+                val fullName = "${item.firstName} ${item.lastName}"
+                if (item.firstName.contains(query, ignoreCase = true) or item.lastName.contains(query, ignoreCase = true) or fullName.contains(query, ignoreCase = true)) {
+                    messagesList.add(item)
+                }
             }
         }
+        Log.d("FILTER LIST AFTER", "${filterList.size}")
+        Log.d("MESSAGE LIST AFTER", "${messagesList.size}")
+        notifyDataSetChanged()
     }
 }

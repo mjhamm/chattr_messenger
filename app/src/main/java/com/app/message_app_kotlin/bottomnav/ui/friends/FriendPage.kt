@@ -15,16 +15,21 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.app.message_app_kotlin.R
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.ktx.Firebase
 import java.util.concurrent.TimeUnit
 
 class FriendPage: AppCompatActivity() {
 
     private lateinit var friendButton: MaterialButton
     private lateinit var friendUid: String
+    private lateinit var myUid: String
+    private lateinit var mAuth: FirebaseAuth
 
     companion object {
         const val IS_FRIEND = 0
@@ -58,6 +63,12 @@ class FriendPage: AppCompatActivity() {
                 window.decorView.systemUiVisibility =
                     View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR// or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
+        }
+
+        mAuth = Firebase.auth
+
+        if (mAuth.currentUser != null) {
+            myUid = mAuth.currentUser!!.uid
         }
 
         friendButton = findViewById(R.id.friendButton)
@@ -107,7 +118,7 @@ class FriendPage: AppCompatActivity() {
                     //showCodeDialog(IS_REQUEST, "", "", "", "")
                 }
             }
-            sendFriendRequest()
+            //sendFriendRequest()
             //addFriend(friendUid)
         }
     }
@@ -115,7 +126,7 @@ class FriendPage: AppCompatActivity() {
     private fun sendFriendRequest() {
 
         val requestedUser = mapOf(
-            "uid" to "rdrwKyPJLLALFJHKsokB",
+            "uid" to myUid,
             "request" to true,
             "top" to false
         )
@@ -127,48 +138,17 @@ class FriendPage: AppCompatActivity() {
         FirebaseFirestore.getInstance().collection("users")
             .document(friendUid)
             .collection("friends")
-            .document("rdrwKyPJLLALFJHKsokB")
+            .document(myUid)
             .set(requestedUser)
             .addOnSuccessListener {
                 updateFriendButton(friendButton, IS_REQUEST)
             }
 
         FirebaseFirestore.getInstance().collection("users")
-            .document("rdrwKyPJLLALFJHKsokB")
+            .document(myUid)
             .collection("requests")
             .document(friendUid)
             .set(friendInfo)
-    }
-
-    private fun checkIfFriend(uid: String?) {
-        if (uid != null) {
-            FirebaseFirestore.getInstance().collection("users")
-                .document("rdrwKyPJLLALFJHKsokB")
-                .collection("friends")
-                .get()
-                .addOnSuccessListener { documents ->
-                    for (doc in documents) {
-                        if (doc.id == uid) {
-                            // document with uid exists
-                            updateFriendButton(friendButton, IS_FRIEND)
-                            FirebaseFirestore.getInstance().collection("users")
-                                .document("rdrwKyPJLLALFJHKsokB")
-                                .collection("friends")
-                                .document(uid)
-                                .delete()
-                            return@addOnSuccessListener
-                        }
-                    }
-                    // document doesn't exist
-                    updateFriendButton(friendButton, IS_REQUEST)
-                    val map = mapOf("uid" to uid)
-                    FirebaseFirestore.getInstance().collection("users")
-                        .document("rdrwKyPJLLALFJHKsokB")
-                        .collection("friends")
-                        .document(uid)
-                        .set(map)
-                }
-        }
     }
 
     private fun updateFriendButton(button: MaterialButton, friendStatus: Int) {
@@ -205,14 +185,14 @@ class FriendPage: AppCompatActivity() {
         FirebaseFirestore.getInstance().collection("users")
             .document(friendUid)
             .collection("friends")
-            .document("rdrwKyPJLLALFJHKsokB")
+            .document(myUid)
             .delete()
             .addOnSuccessListener {
                 updateFriendButton(friendButton, NOT_FRIEND)
             }
 
         FirebaseFirestore.getInstance().collection("users")
-            .document("rdrwKyPJLLALFJHKsokB")
+            .document(myUid)
             .collection("requests")
             .document(friendUid)
             .delete()

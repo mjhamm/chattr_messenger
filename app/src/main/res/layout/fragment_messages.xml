@@ -7,11 +7,42 @@
     android:paddingTop="?attr/actionBarSize"
     tools:context=".bottomnav.ui.messages.MessageFragment">
 
+    <androidx.core.widget.ContentLoadingProgressBar
+        android:id="@+id/messagesLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/messageRecycler"/>
+
+    <SearchView
+        android:id="@+id/messages_searchView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:queryHint="Search Messages"
+        android:iconifiedByDefault="false"
+        android:searchIcon="@null"
+        android:theme="@style/Widget.Custom.SearchView"
+        android:queryBackground="@android:color/transparent" />
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/browser_actions_bg_grey"
+        app:layout_constraintTop_toBottomOf="@id/messages_searchView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageRecycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

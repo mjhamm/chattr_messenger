@@ -30,7 +30,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="16dp"
                 android:background="@null"
-                android:tint="@color/black"
+                app:tint="@color/black"
                 android:paddingVertical="8dp"
                 android:paddingStart="8dp"
                 android:paddingEnd="0dp"
@@ -102,7 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                android:tint="@color/blue"
+                app:tint="@color/blue"
                 android:padding="8dp"
                 android:src="@drawable/ic_baseline_info_24"
                 app:layout_constraintTop_toTopOf="parent"
@@ -140,6 +140,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:minLines="1"
+                android:maxLines="4"
                 android:paddingVertical="8dp"
                 android:paddingHorizontal="16dp"
                 android:inputType="textCapSentences|textMultiLine"
@@ -149,6 +150,7 @@
                 android:layout_gravity="center_vertical"
                 android:textColorHint="@color/darkGrey"
                 android:textSize="14sp"
+                android:scrollbars="vertical"
                 android:hint="Chat Message"/>
 
             <ImageButton
@@ -161,7 +163,7 @@
                 android:background="@android:color/transparent"
                 android:layout_gravity="bottom|end"
                 android:src="@drawable/ic_baseline_send_24"
-                android:tint="@color/blue"/>
+                app:tint="@color/blue"/>
 
     </LinearLayout>
 

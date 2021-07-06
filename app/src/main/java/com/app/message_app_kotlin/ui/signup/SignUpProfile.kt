@@ -15,7 +15,10 @@ import com.app.message_app_kotlin.bottomnav.BottomNav
 import com.app.message_app_kotlin.models.User
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import kotlin.math.sign
 
 class SignUpProfile : AppCompatActivity() {
 
@@ -49,13 +52,18 @@ class SignUpProfile : AppCompatActivity() {
         val passwordMatch: TextView = findViewById(R.id.passwordMatch)
         progressHolder = findViewById(R.id.signUpProfile_progressHolder)
 
-        mAuth = FirebaseAuth.getInstance()
+        mAuth = Firebase.auth
+
+        signUpFinishButton.isClickable = false
+        signUpFinishButton.isEnabled = false
 
         backButton.setOnClickListener {
             finish()
         }
 
         signUpFinishButton.setOnClickListener {
+            password = passEditText.text.toString()
+            confirmPass = passConfirmEditText.text.toString()
             checkUniqueUsername(userNameEditText.text.toString(), uniqueUserName)
         }
 
@@ -66,6 +74,8 @@ class SignUpProfile : AppCompatActivity() {
             phoneNumber = intent.getStringExtra("phoneNumber").toString()
             emailAddress = intent.getStringExtra("email").toString()
             isPhoneSignUp = intent.getBooleanExtra("isPhone", false)
+
+            Log.d("TAG", "$firstName  $lastName")
         }
 
         if (isPhoneSignUp) {
@@ -75,6 +85,18 @@ class SignUpProfile : AppCompatActivity() {
             passEditText.visibility = View.VISIBLE
             passConfirmEditText.visibility = View.VISIBLE
         }
+
+        userNameEditText.addTextChangedListener(object: TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                disableButton(userNameEditText, passEditText, passConfirmEditText, signUpFinishButton, passwordMatch)
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+            }
+        })
 
         passEditText.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -102,8 +124,8 @@ class SignUpProfile : AppCompatActivity() {
     }
 
     private fun disableButton(username: EditText, password: EditText, passConfirm: EditText, button: MaterialButton, passMatch: TextView) {
-        if (username.text.isNotEmpty()) {
-            if (password.text.equals(passConfirm.text)) {
+        if (username.text.isNotEmpty() && password.text.isNotEmpty() && passConfirm.text.isNotEmpty()) {
+            if (password.text.toString() == passConfirm.text.toString()) {
                 passMatch.visibility = View.GONE
                 button.isClickable = true
                 button.isEnabled = true
@@ -143,9 +165,11 @@ class SignUpProfile : AppCompatActivity() {
                                 .document(phoneNumber)
                                 .set(mapPhone)
                         } else {
+                            // update email users password from temp password
+                            mAuth.currentUser?.updatePassword(password)
                             // adds email address to database to make checking if user is already created with that email
                             val mapEmail: Map<String, String> = mapOf("email" to emailAddress)
-                            FirebaseFirestore.getInstance().collection("phone").document(emailAddress)
+                            FirebaseFirestore.getInstance().collection("emails").document(emailAddress)
                                 .set(mapEmail)
                         }
 

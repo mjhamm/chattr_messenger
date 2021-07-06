@@ -9,7 +9,7 @@
                 android:title="Active Status">
             </item>
             <item
-                android:id="@+id/profile_image"
+                android:id="@+id/update_profile"
                 android:icon="@drawable/ic_baseline_person_24"
                 android:title="Update Profile"
                 />
